@@ -8,19 +8,7 @@ import androidx.lifecycle.Observer
 import com.devhyeon.phoneauth.databinding.ActivityPhoneAuthBinding
 import com.devhyeon.phoneauth.utils.Status
 import com.devhyeon.phoneauth.viewmodels.PhoneAuthViewModel
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.safetynet.SafetyNet
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.FirebaseException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
 
 class PhoneAuthActivity : AppCompatActivity() {
     lateinit var binding : ActivityPhoneAuthBinding
@@ -41,7 +29,7 @@ class PhoneAuthActivity : AppCompatActivity() {
             doAuth()
         }
         binding.resent.setOnClickListener {
-            reAuth()
+            doReAuth()
         }
 
         binding.btnAuth.setOnClickListener {
@@ -53,10 +41,10 @@ class PhoneAuthActivity : AppCompatActivity() {
 
     //인증번호 요청
     private fun doAuth() {
-        phoneAuthViewModel.startPhoneNumberVerification("+82"+binding.etPhoneNumber.text.toString(),this@PhoneAuthActivity)
+        phoneAuthViewModel.sendVerificationCode("+82"+binding.etPhoneNumber.text.toString(),this@PhoneAuthActivity)
     }
     //인증번호 재요청
-    private fun reAuth() {
+    private fun doReAuth() {
         phoneAuthViewModel.resendVerificationCode("+82"+binding.etPhoneNumber.text.toString(),this@PhoneAuthActivity)
     }
 
@@ -67,6 +55,7 @@ class PhoneAuthActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
+        //인증번호 요청/재요청에 따른 UI
         with(phoneAuthViewModel) {
             isRequestAuth.observe(this@PhoneAuthActivity, Observer {
                 when(it) {
@@ -85,7 +74,7 @@ class PhoneAuthActivity : AppCompatActivity() {
                 }
             })
         }
-
+        //인증번호 검사에 따른 UI
         with(phoneAuthViewModel) {
             isAuthCheck.observe(this@PhoneAuthActivity, Observer {
                 when(it) {
@@ -109,6 +98,7 @@ class PhoneAuthActivity : AppCompatActivity() {
                 }
             })
         }
+        //제한시간에 따른 UI
         with(phoneAuthViewModel) {
             isTimeOut.observe(this@PhoneAuthActivity, Observer {
                 when(it) {

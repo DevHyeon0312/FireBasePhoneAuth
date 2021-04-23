@@ -27,6 +27,8 @@ class PhoneAuthViewModel : ViewModel() {
     lateinit var authId: String //인증ID
     private var forceResendingToken : PhoneAuthProvider.ForceResendingToken? = null //인증번호 재전송 토큰
 
+    private val isResend = true //재전송 여부
+
     //인증코드 요청시 전송여부
     private val _isRequestAuth = MutableLiveData<Status<Boolean>>()
     //인증코드 입력시 결과
@@ -39,21 +41,31 @@ class PhoneAuthViewModel : ViewModel() {
     val isTimeOut : LiveData<Status<Boolean>> get() = _isTimeOut
 
     //사용자가 인증번호 요청
-    fun startPhoneNumberVerification(@NotNull phoneNumber: String, @NotNull activity: Activity) {
+    fun sendVerificationCode(@NotNull phoneNumber: String, @NotNull activity: Activity) {
         _isRequestAuth.value = Status.Run()
         if (isCheckPhoneNumber(phoneNumber)) {
-            checkSafetyNet(phoneNumber, activity)
+            checkSafetyNet(phoneNumber, activity, !isResend)
+        } else {
+            _isRequestAuth.value = Status.Failure(PhoneNumberError)
+        }
+    }
+
+    //사용자가 인증번호 재요청
+    fun resendVerificationCode(@NotNull phoneNumber: String, @NotNull activity: Activity) {
+        _isRequestAuth.value = Status.Run()
+        if (isCheckPhoneNumber(phoneNumber)) {
+            checkSafetyNet(phoneNumber, activity, isResend)
         } else {
             _isRequestAuth.value = Status.Failure(PhoneNumberError)
         }
     }
 
     //SafetyNet 기기검증 및 전송단계 진행
-    private fun checkSafetyNet(@NotNull phoneNumber: String, @NotNull activity: Activity) {
+    private fun checkSafetyNet(@NotNull phoneNumber: String, @NotNull activity: Activity, isResend: Boolean) {
         if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS) {
             SafetyNet.getClient(activity).attest(FIREBASE_AUTH_NONCE, FIREBASE_AUTH_KEY)
                 .addOnSuccessListener(activity) {
-                    sendAuthMessage(phoneNumber,activity)
+                    sendAuthMessage(phoneNumber,activity, isResend)
                 }
                 .addOnFailureListener(activity) { e ->
                     if (e is ApiException) {
@@ -68,46 +80,28 @@ class PhoneAuthViewModel : ViewModel() {
     }
 
     //인증번호 전송
-    private fun sendAuthMessage(@NotNull phoneNumber: String, @NotNull activity: Activity) {
+    private fun sendAuthMessage(@NotNull phoneNumber: String, @NotNull activity: Activity, isResend:Boolean) {
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(phoneNumber)      // Phone number to verify
             .setTimeout(TIME_OUT, TimeUnit.SECONDS) // Timeout and unit
             .setActivity(activity)
             .setCallbacks(callbacks)          // OnVerificationStateChangedCallbacks
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
-    }
 
-    //인증번호로 재전송
-    fun resendVerificationCode(
-        phoneNumber: String,
-        @NotNull activity: Activity
-    ) {
-        if (isCheckPhoneNumber(phoneNumber)) {
-            _isRequestAuth.value = Status.Run()
-            val optionsBuilder = PhoneAuthOptions.newBuilder(auth)
-                .setPhoneNumber(phoneNumber)       // Phone number to verify
-                .setTimeout(TIME_OUT, TimeUnit.SECONDS) // Timeout and unit
-                .setActivity(activity)                 // Activity (for callback binding)
-                .setCallbacks(callbacks)          // OnVerificationStateChangedCallbacks
-            if (forceResendingToken != null) {
-                optionsBuilder.setForceResendingToken(forceResendingToken) // callback's ForceResendingToken
-            }
-            PhoneAuthProvider.verifyPhoneNumber(optionsBuilder.build())
-        } else {
-            _isRequestAuth.value = Status.Failure(PhoneNumberError)
+        if (isResend && forceResendingToken != null) {
+            options.setForceResendingToken(forceResendingToken) // callback's ForceResendingToken
         }
+        PhoneAuthProvider.verifyPhoneNumber(options.build())
     }
 
     //PhoneAuthCredential 객체 가져오기
-    private fun verifyPhoneNumberWithCode(verificationId: String?, code: String) : PhoneAuthCredential {
+    private fun verifyPhoneNumberWithCode(verificationId: String?, @NotNull code: String) : PhoneAuthCredential {
         return PhoneAuthProvider.getCredential(verificationId!!, code)
     }
 
-    //인정번호 검사
-    fun doLogin(authNumber:String, @NotNull activity: Activity) {
+    //인증번호 검사
+    fun doLogin(@NotNull authNumber:String, @NotNull activity: Activity) {
         _isAuthCheck.value = Status.Run()
-        if (authNumber.isNullOrEmpty()) {
+        if (authNumber.isEmpty()) {
             _isAuthCheck.value = Status.Failure(AuthSameError)
         } else {
             val credential = verifyPhoneNumberWithCode(authId, authNumber)
@@ -127,22 +121,16 @@ class PhoneAuthViewModel : ViewModel() {
         //1.즉시확인된 경우 : 확인 코드를 보내거나 입력 할 필요없이 확인된 경우
         //2.자동검색된 경우 : 일부기기에서 Google Play 서비스가 자동으로 SMS 감지 후 작업
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            println("onVerificationCompleted")
             _isRequestAuth.value = Status.Success(true)
         }
 
         //전화번호 검증 실패 등으로 전송이 실패한 경우
         override fun onVerificationFailed(e: FirebaseException) {
-            println("onVerificationFailed")
             _isRequestAuth.value = Status.Failure(AuthSendError)
         }
 
         //코드전송을 성공한 경우
-        override fun onCodeSent(
-            verificationId: String,
-            token: PhoneAuthProvider.ForceResendingToken
-        ) {
-            println("onCodeSent")
+        override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
             authId = verificationId
             forceResendingToken = token
             _isRequestAuth.value = Status.Success(true)

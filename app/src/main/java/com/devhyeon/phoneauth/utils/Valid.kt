@@ -1,6 +1,5 @@
 package com.devhyeon.phoneauth.utils
 
-import android.telephony.PhoneNumberUtils
 import org.jetbrains.annotations.NotNull
 import java.util.regex.Pattern
 
