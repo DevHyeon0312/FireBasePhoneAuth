@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.devhyeon.phoneauth.databinding.ActivityPhoneAuthBinding
 import com.devhyeon.phoneauth.utils.Status
+import com.devhyeon.phoneauth.utils.hideView
+import com.devhyeon.phoneauth.utils.showView
 import com.devhyeon.phoneauth.viewmodels.PhoneAuthViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -14,7 +16,6 @@ class PhoneAuthActivity : AppCompatActivity() {
     lateinit var binding : ActivityPhoneAuthBinding
 
     private val phoneAuthViewModel: PhoneAuthViewModel by viewModel()
-
 
     companion object {
         private val TAG = PhoneAuthActivity::class.java.name
@@ -60,15 +61,15 @@ class PhoneAuthActivity : AppCompatActivity() {
             isRequestAuth.observe(this@PhoneAuthActivity, Observer {
                 when(it) {
                     is Status.Run -> {
-                        binding.loaderView.visibility = View.VISIBLE
+                        showView(binding.loaderView)
                         println("Running")
                     }
                     is Status.Success -> {
-                        binding.loaderView.visibility = View.GONE
+                        hideView(binding.loaderView)
                         println("Success")
                     }
                     is Status.Failure -> {
-                        binding.loaderView.visibility = View.GONE
+                        hideView(binding.loaderView)
                         println("Failure")
                     }
                 }
@@ -79,20 +80,19 @@ class PhoneAuthActivity : AppCompatActivity() {
             isAuthCheck.observe(this@PhoneAuthActivity, Observer {
                 when(it) {
                     is Status.Run -> {
-                        binding.loaderView.visibility = View.VISIBLE
+                        showView(binding.loaderView)
                         println("Running")
                     }
                     is Status.Success -> {
+                        hideView(binding.loaderView)
                         if(it.data!!) {
-                            binding.loaderView.visibility = View.GONE
                             startMainActivity()
                         } else {
-                            binding.loaderView.visibility = View.GONE
                             println("Failure")
                         }
                     }
                     is Status.Failure -> {
-                        binding.loaderView.visibility = View.GONE
+                        hideView(binding.loaderView)
                         println("Failure")
                     }
                 }
@@ -103,15 +103,15 @@ class PhoneAuthActivity : AppCompatActivity() {
             isTimeOut.observe(this@PhoneAuthActivity, Observer {
                 when(it) {
                     is Status.Run -> {
-                        binding.btnAuth.visibility = View.VISIBLE
-                        binding.resent.visibility = View.VISIBLE
-                        binding.etAuthNumber.visibility = View.VISIBLE
+                        showView(binding.btnAuth)
+                        showView(binding.resent)
+                        showView(binding.etAuthNumber)
                     }
                     is Status.Success -> {}
                     is Status.Failure -> {
-                        binding.btnAuth.visibility = View.GONE
-                        binding.resent.visibility = View.GONE
-                        binding.etAuthNumber.visibility = View.GONE
+                        hideView(binding.btnAuth)
+                        hideView(binding.resent)
+                        hideView(binding.etAuthNumber)
                     }
                 }
             })
