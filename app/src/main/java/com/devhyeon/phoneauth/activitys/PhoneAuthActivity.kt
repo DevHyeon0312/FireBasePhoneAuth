@@ -53,11 +53,11 @@ class PhoneAuthActivity : AppCompatActivity() {
 
     //인증번호 요청
     private fun doAuth() {
-        phoneAuthViewModel.startPhoneNumberVerification("+8201091878448",this@PhoneAuthActivity)
+        phoneAuthViewModel.startPhoneNumberVerification("+82"+binding.etPhoneNumber.text.toString(),this@PhoneAuthActivity)
     }
     //인증번호 재요청
     private fun reAuth() {
-        phoneAuthViewModel.resendVerificationCode("+8201091878448",this@PhoneAuthActivity)
+        phoneAuthViewModel.resendVerificationCode("+82"+binding.etPhoneNumber.text.toString(),this@PhoneAuthActivity)
     }
 
     //인증번호 검사

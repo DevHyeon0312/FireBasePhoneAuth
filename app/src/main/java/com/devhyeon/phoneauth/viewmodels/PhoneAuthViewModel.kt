@@ -83,16 +83,20 @@ class PhoneAuthViewModel : ViewModel() {
         phoneNumber: String,
         @NotNull activity: Activity
     ) {
-        _isRequestAuth.value = Status.Run()
-        val optionsBuilder = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phoneNumber)       // Phone number to verify
-            .setTimeout(TIME_OUT, TimeUnit.SECONDS) // Timeout and unit
-            .setActivity(activity)                 // Activity (for callback binding)
-            .setCallbacks(callbacks)          // OnVerificationStateChangedCallbacks
-        if (forceResendingToken != null) {
-            optionsBuilder.setForceResendingToken(forceResendingToken) // callback's ForceResendingToken
+        if (isCheckPhoneNumber(phoneNumber)) {
+            _isRequestAuth.value = Status.Run()
+            val optionsBuilder = PhoneAuthOptions.newBuilder(auth)
+                .setPhoneNumber(phoneNumber)       // Phone number to verify
+                .setTimeout(TIME_OUT, TimeUnit.SECONDS) // Timeout and unit
+                .setActivity(activity)                 // Activity (for callback binding)
+                .setCallbacks(callbacks)          // OnVerificationStateChangedCallbacks
+            if (forceResendingToken != null) {
+                optionsBuilder.setForceResendingToken(forceResendingToken) // callback's ForceResendingToken
+            }
+            PhoneAuthProvider.verifyPhoneNumber(optionsBuilder.build())
+        } else {
+            _isRequestAuth.value = Status.Failure(PhoneNumberError)
         }
-        PhoneAuthProvider.verifyPhoneNumber(optionsBuilder.build())
     }
 
     //PhoneAuthCredential 객체 가져오기
