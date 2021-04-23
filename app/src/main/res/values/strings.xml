@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FireBase PhoneAuth</string>
+
+    <!-- Login -->
+    <string name="phone_number_title">전화번호를 입력하세요.</string>
+    <string name="send_sms">전송</string>
+    <string name="hint_auth_number">인증번호를 입력하세요.</string>
+    <string name="country_code">국가코드</string>
+    <string name="resending">인증번호를 받지 못했나요? 이곳을 눌러서 다시 요청하세요.</string>
+    <string name="btn_auth">완료</string>
+</resources>

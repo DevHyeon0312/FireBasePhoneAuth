@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FireBase PhoneAuth</string>
+    <string name="phone_number_title">Input PhoneNumber.</string>
+    <string name="send_sms">Send</string>
+    <string name="hint_auth_number">Input AuthNumber.</string>
+    <string name="country_code">Country Code</string>
+    <string name="resending">Did not you get the authentication number? Click here to request again.</string>
+    <string name="btn_auth">완료</string>
+</resources>
