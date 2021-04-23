@@ -2,7 +2,6 @@ package com.devhyeon.phoneauth.activitys
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.devhyeon.phoneauth.databinding.ActivityPhoneAuthBinding
@@ -62,15 +61,15 @@ class PhoneAuthActivity : AppCompatActivity() {
                 when(it) {
                     is Status.Run -> {
                         showView(binding.loaderView)
-                        println("Running")
+                        println("$TAG : isRequestAuth Running")
                     }
                     is Status.Success -> {
                         hideView(binding.loaderView)
-                        println("Success")
+                        println("$TAG : isRequestAuth Success")
                     }
                     is Status.Failure -> {
                         hideView(binding.loaderView)
-                        println("Failure")
+                        println("$TAG : isRequestAuth Failure")
                     }
                 }
             })
@@ -81,19 +80,19 @@ class PhoneAuthActivity : AppCompatActivity() {
                 when(it) {
                     is Status.Run -> {
                         showView(binding.loaderView)
-                        println("Running")
+                        println("$TAG : isAuthCheck Running")
                     }
                     is Status.Success -> {
                         hideView(binding.loaderView)
                         if(it.data!!) {
                             startMainActivity()
                         } else {
-                            println("Failure")
+                            println("$TAG : isAuthCheck Failure")
                         }
                     }
                     is Status.Failure -> {
                         hideView(binding.loaderView)
-                        println("Failure")
+                        println("$TAG : isAuthCheck Failure")
                     }
                 }
             })
@@ -106,12 +105,14 @@ class PhoneAuthActivity : AppCompatActivity() {
                         showView(binding.btnAuth)
                         showView(binding.resent)
                         showView(binding.etAuthNumber)
+                        println("$TAG : isTimeOut Running")
                     }
                     is Status.Success -> {}
                     is Status.Failure -> {
                         hideView(binding.btnAuth)
                         hideView(binding.resent)
                         hideView(binding.etAuthNumber)
+                        println("$TAG : isTimeOut Failure")
                     }
                 }
             })
