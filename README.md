@@ -18,8 +18,6 @@ val FIREBASE_AUTH_NONCE = SafetyUtils().createNonce()
 const val FIREBASE_AUTH_KEY = "here"
 ```
 
-------
-질의응답에 따라 NONCE 생성 코드를 추가하였습니다.
 
 
 
