@@ -7,20 +7,21 @@ FireBasePhoneAuth  ( 파이어베이스 문자인증)
 
 #### 위 패키지 위치에 API_KEY.kt 파일을 생성해주세요.
 
-#### FIREBASE_AUTH_NONCE 를 작성해주세요.
-val FIREBASE_AUTH_NONCE : ByteArray = "here" 
 
-#### FIREBASE_AUTH_KEY 를 작성해주세요.
-const val FIREBASE_AUTH_KEY : String = "here"
+```kotlin
+package com.devhyeon.phoneauth.define
+
+import com.devhyeon.phoneauth.utils.SafetyUtils
+
+val FIREBASE_AUTH_NONCE = SafetyUtils().createNonce()
+//TODO : Enter your API key.
+const val FIREBASE_AUTH_KEY = "here"
+```
 
 ------
-## 질의응답 : 이메일문의를 받고 추가 작성합니다.
+질의응답에 따라 NONCE 생성 코드를 추가하였습니다.
 
-1. FIREBASE_AUTH_NONCE 에는 무엇을 작성해야 하나요?
-- 공식문서에 의하면 해당 부분은 nonce 를 작성하는 부분입니다. ByteArray 가 작성되는 부분인데, 명시적으로 작성해도 가능합니다.
-ex) val FIREBASE_AUTH_NONCE = "HelloWorld!".toByteArray()
-- 그러나, 명시적으로 작성하는 것보다는, 랜덤하게 작성하는 것을 권장합니다.
-- Random 값을 생성, Random 값을 사용하여 Random 하게 문자열의 Index를 참조하여 ByteArray 생성
+
 
 
 ------
